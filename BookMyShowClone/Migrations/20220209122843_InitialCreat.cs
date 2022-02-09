@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BookMyShowClone.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class InitialCreat : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -53,6 +53,7 @@ namespace BookMyShowClone.Migrations
                     PlayingTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TicketPrice = table.Column<double>(type: "float", nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false),
+                    RatingCount = table.Column<int>(type: "int", nullable: false),
                     Genre = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TrailorUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),

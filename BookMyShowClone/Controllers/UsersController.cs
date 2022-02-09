@@ -64,16 +64,16 @@ namespace BookMyShowClone.Controllers
         public IActionResult CheckFavoriteEvents()
         {
             var userId = GetUserId();
-            var favorites =from favorite in _dbContext.Favorites
-                               join movie in _dbContext.Events on favorite.EventId equals movie.Id
-                               join user in _dbContext.Users on favorite.UserId equals user.Id
-                               where (favorite.UserId == userId)
-                               select new
-                               {
-                                   EventName = movie.Name,
-                                   ArtistName = movie.Artist,
-                                   City = movie.City
-                               };
+            var favorites = from favorite in _dbContext.Favorites
+                            join movie in _dbContext.Events on favorite.EventId equals movie.Id
+                            join user in _dbContext.Users on favorite.UserId equals user.Id
+                            where (favorite.UserId == userId)
+                            select new
+                            {
+                                EventName = movie.Name,
+                                ArtistName = movie.Artist,
+                                City = movie.City
+                            };
 
             return Ok(favorites);
         }
@@ -97,7 +97,6 @@ namespace BookMyShowClone.Controllers
 
                         new Claim(ClaimTypes.NameIdentifier, userEmail.Id.ToString()),
                         new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                        //new Claim(JwtRegisteredClaimNames.Email, user.Email),
                         new Claim(ClaimTypes.Email, user.Email),
                         new Claim(ClaimTypes.Role, userEmail.Role),
 
@@ -118,26 +117,50 @@ namespace BookMyShowClone.Controllers
 
         }
 
-            
-            [Authorize(Roles = "Users")]
-            [HttpPost("AddFavorite/{id}")]          
-            public IActionResult AddFavorite(int id)
+
+        [Authorize(Roles = "Users")]
+        [HttpPost("AddFavorite/{id}")]
+        public IActionResult AddFavorite(int id)
+        {
+
+            var favObj = new Favorite
             {
+                EventId = id,
+                UserId = GetUserId()
+            };
 
-                var favObj = new Favorite
-                {
-                    EventId = id,
-                    UserId = GetUserId()
-                };
+            _dbContext.Favorites.Add(favObj);
+            _dbContext.SaveChanges();
 
-                _dbContext.Favorites.Add(favObj);
+            return StatusCode(StatusCodes.Status201Created);
+
+        }
+
+        [Authorize(Roles = "Users")]
+        [HttpPost("RateEvent/{id}")]
+        public IActionResult RateEvent(int id, [FromForm] double rating)
+        {
+            var events = _dbContext.Events.Find(id);
+
+            if (events == null)
+            {
+                return NotFound("No record found with this id");
+            }
+
+            else
+            {
+                var prevCount = events.RatingCount;
+                var prevRating = events.Rating;
+                var newRating = (prevCount * prevRating + rating) / (prevCount + 1);
+                events.Rating = newRating;
+                events.RatingCount++;
                 _dbContext.SaveChanges();
-
-                return StatusCode(StatusCodes.Status201Created);
+                return Ok("Record updated successfully");
 
             }
 
 
-        
+
+        }
     }
 }

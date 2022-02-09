@@ -61,6 +61,9 @@ namespace BookMyShowClone.Migrations
                     b.Property<double>("Rating")
                         .HasColumnType("float");
 
+                    b.Property<int>("RatingCount")
+                        .HasColumnType("int");
+
                     b.Property<double>("TicketPrice")
                         .HasColumnType("float");
 

@@ -27,10 +27,13 @@ namespace BookMyShowClone.Models
         public DateTime PlayingTime { get; set; }
         public double TicketPrice { get; set; }
 
-        public double Rating { get; set; }
+        public double Rating { get; set; } = 0;
+        public int RatingCount { get; set; } = 0;
+
         public string Genre { get; set; }
         public string TrailorUrl { get; set; }
 
+        //public int MyProperty { get; set; }
 
         [NotMapped]
         public IFormFile Image { get; set; }
