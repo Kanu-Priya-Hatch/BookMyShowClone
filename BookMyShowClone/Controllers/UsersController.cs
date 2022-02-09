@@ -1,6 +1,7 @@
 ﻿using AuthenticationPlugin;
 using BookMyShowClone.Data;
 using BookMyShowClone.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -13,22 +14,24 @@ using System.Threading.Tasks;
 
 namespace BookMyShowClone.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
         private readonly EventDbContext _dbContext;
         private readonly IConfiguration _configuration;
         private readonly AuthService _auth;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UsersController(EventDbContext dbContext, IConfiguration configuration)
+        public UsersController(EventDbContext dbContext, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             this._dbContext = dbContext;
             this._configuration = configuration;
             _auth = new AuthService(configuration);
+            this._httpContextAccessor = httpContextAccessor;
         }
 
-        [HttpPost]
+        [HttpPost("Register")]
         public IActionResult Register([FromBody] User user)
         {
             var userWithSameEmail = _dbContext.Users.Where(u => u.Email == user.Email).SingleOrDefault();
@@ -54,8 +57,28 @@ namespace BookMyShowClone.Controllers
             }
         }
 
+        private int GetUserId() => int.Parse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        [HttpPost]
+        [Authorize(Roles = "Users")]
+        [HttpGet("CheckFavoriteEvents")]
+        public IActionResult CheckFavoriteEvents()
+        {
+            var userId = GetUserId();
+            var favorites =from favorite in _dbContext.Favorites
+                               join movie in _dbContext.Events on favorite.EventId equals movie.Id
+                               join user in _dbContext.Users on favorite.UserId equals user.Id
+                               where (favorite.UserId == userId)
+                               select new
+                               {
+                                   EventName = movie.Name,
+                                   ArtistName = movie.Artist,
+                                   City = movie.City
+                               };
+
+            return Ok(favorites);
+        }
+
+        [HttpPost("Login")]
         public IActionResult Login([FromBody] User user)
         {
             var userEmail = _dbContext.Users.FirstOrDefault(u => u.Email == user.Email);
@@ -94,5 +117,27 @@ namespace BookMyShowClone.Controllers
             });
 
         }
+
+            
+            [Authorize(Roles = "Users")]
+            [HttpPost("AddFavorite/{id}")]          
+            public IActionResult AddFavorite(int id)
+            {
+
+                var favObj = new Favorite
+                {
+                    EventId = id,
+                    UserId = GetUserId()
+                };
+
+                _dbContext.Favorites.Add(favObj);
+                _dbContext.SaveChanges();
+
+                return StatusCode(StatusCodes.Status201Created);
+
+            }
+
+
+        
     }
 }

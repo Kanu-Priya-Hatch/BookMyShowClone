@@ -25,34 +25,29 @@ namespace BookMyShowClone.Controllers
             this._httpContextAccessor = httpContextAccessor;
         }
 
-        private int GetUserId() => int.Parse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-
-        [HttpPost("AddFavorite/{id}")]
-        [Authorize(Roles = "Users")]
-        public IActionResult Post(int id)
+        [HttpPost("AddEvent")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult Post([FromForm] Event eventObj)
         {
-            
-            var favObj = new Favorite
-            {
-                EventId = id,
-                UserId = GetUserId()
-            };
+            var guid = Guid.NewGuid();
 
-            if (favObj == null)
+            var filePath = Path.Combine("wwwroot", guid + ".jpg");
+
+            if (eventObj.Image != null)
             {
-                return NotFound("No record found with this id");
+                var fileStream = new FileStream(filePath, FileMode.Create);
+                eventObj.Image.CopyTo(fileStream);
             }
-            else
-            {
-                _dbContext.Favorites.Add(favObj);
-                _dbContext.SaveChanges();
-                return StatusCode(StatusCodes.Status201Created);
-            }
+
+            eventObj.ImageUrl = filePath.Remove(0, 7);
+            _dbContext.Events.Add(eventObj);
+            _dbContext.SaveChanges();
+            return Ok();
 
         }
 
 
+       
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public IActionResult Put(int id, [FromForm] Event eventObj)
@@ -136,6 +131,8 @@ namespace BookMyShowClone.Controllers
                          };
             return Ok(movies);
         }
+
+        private int GetUserId() => int.Parse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
         [HttpPost]
         [Authorize(Roles = "Users")]

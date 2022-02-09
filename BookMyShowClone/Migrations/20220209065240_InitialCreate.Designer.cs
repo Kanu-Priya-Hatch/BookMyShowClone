@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookMyShowClone.Migrations
 {
     [DbContext(typeof(EventDbContext))]
-    [Migration("20220208193612_InitialCrea")]
-    partial class InitialCrea
+    [Migration("20220209065240_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -69,9 +69,32 @@ namespace BookMyShowClone.Migrations
                     b.Property<string>("TrailorUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("BookMyShowClone.Models.Favorite", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Favorites");
                 });
 
             modelBuilder.Entity("BookMyShowClone.Models.Reservation", b =>
@@ -135,6 +158,13 @@ namespace BookMyShowClone.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("BookMyShowClone.Models.Event", b =>
+                {
+                    b.HasOne("BookMyShowClone.Models.User", null)
+                        .WithMany("Favorites")
+                        .HasForeignKey("UserId");
+                });
+
             modelBuilder.Entity("BookMyShowClone.Models.Reservation", b =>
                 {
                     b.HasOne("BookMyShowClone.Models.Event", null)
@@ -157,6 +187,8 @@ namespace BookMyShowClone.Migrations
 
             modelBuilder.Entity("BookMyShowClone.Models.User", b =>
                 {
+                    b.Navigation("Favorites");
+
                     b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618
