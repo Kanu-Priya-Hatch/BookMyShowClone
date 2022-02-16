@@ -11,6 +11,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+
 
 namespace BookMyShowClone.Controllers
 {
@@ -36,9 +38,21 @@ namespace BookMyShowClone.Controllers
         {
             var userWithSameEmail = _dbContext.Users.Where(u => u.Email == user.Email).SingleOrDefault();
 
+            var email = user.Email;
+
+            Regex regex = new Regex(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$",
+                                        RegexOptions.CultureInvariant | RegexOptions.Singleline);
+
+            bool isValidEmail = regex.IsMatch(email);
+
             if (userWithSameEmail != null)
             {
                 return BadRequest("User already exists with same email");
+            }
+            else if (!isValidEmail)
+            {
+                return BadRequest("The email is invalid");
+
             }
             else
             {

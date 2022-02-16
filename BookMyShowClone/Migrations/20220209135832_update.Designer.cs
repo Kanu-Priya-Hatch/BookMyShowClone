@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookMyShowClone.Migrations
 {
     [DbContext(typeof(EventDbContext))]
-    [Migration("20220209122843_InitialCreat")]
-    partial class InitialCreat
+    [Migration("20220209135832_update")]
+    partial class update
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -29,12 +29,15 @@ namespace BookMyShowClone.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Artist")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Duration")
@@ -66,11 +69,17 @@ namespace BookMyShowClone.Migrations
                     b.Property<int>("RatingCount")
                         .HasColumnType("int");
 
+                    b.Property<int>("ReservedSeats")
+                        .HasColumnType("int");
+
                     b.Property<double>("TicketPrice")
                         .HasColumnType("float");
 
                     b.Property<string>("TrailorUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UnReservedSeats")
+                        .HasColumnType("int");
 
                     b.Property<int?>("UserId")
                         .HasColumnType("int");

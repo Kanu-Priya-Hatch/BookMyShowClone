@@ -26,10 +26,25 @@ namespace BookMyShowClone.Controllers
         private int GetUserId() => int.Parse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
 
-        [HttpPost]
+        [HttpPost("bookEvent")]
         [Authorize(Roles = "Users")]
         public IActionResult Post([FromBody] Reservation reservationObj)
         {
+            var eventId = reservationObj.EventId;
+
+            var uReservedSeats = _dbContext.Events.Where(m => m.Id == reservationObj.EventId)
+                                    .Select(m => m.UnReservedSeats).SingleOrDefault();
+
+            if ((uReservedSeats - reservationObj.Qty) < 0) 
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+
+            var eventsObj = _dbContext.Events.Find(eventId);
+
+            eventsObj.ReservedSeats += reservationObj.Qty ;
+            eventsObj.UnReservedSeats -= reservationObj.Qty;
+
             reservationObj.ReservationTime = DateTime.Now;
             reservationObj.UserId = GetUserId();
             reservationObj.Price = _dbContext.Events.Where(m => m.Id == reservationObj.EventId)
@@ -39,6 +54,26 @@ namespace BookMyShowClone.Controllers
             _dbContext.Reservations.Add(reservationObj);
             _dbContext.SaveChanges();
             return StatusCode(StatusCodes.Status201Created);
+        }
+
+        [HttpDelete("unreserveEvent/{id}")]
+        [Authorize(Roles = "Users")]
+        public IActionResult Delete(int id)
+        {
+            var reservations = _dbContext.Reservations.Find(id);
+
+            if (reservations == null || (reservations.UserId != GetUserId()))
+            {
+                return NotFound("No record found with this id");
+            }
+
+            else
+            {
+                _dbContext.Reservations.Remove(reservations);
+                _dbContext.SaveChanges();
+                return Ok("Record deleted successfully");
+            }
+
         }
 
         [Authorize(Roles = "Users")]

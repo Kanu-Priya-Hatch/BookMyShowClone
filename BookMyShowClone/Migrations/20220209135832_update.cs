@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BookMyShowClone.Migrations
 {
-    public partial class InitialCreat : Migration
+    public partial class update : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -44,14 +44,16 @@ namespace BookMyShowClone.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Artist = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Artist = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Language = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Duration = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PlayingDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PlayingTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TicketPrice = table.Column<double>(type: "float", nullable: false),
+                    UnReservedSeats = table.Column<int>(type: "int", nullable: false),
+                    ReservedSeats = table.Column<int>(type: "int", nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false),
                     RatingCount = table.Column<int>(type: "int", nullable: false),
                     Genre = table.Column<string>(type: "nvarchar(max)", nullable: true),

@@ -27,12 +27,15 @@ namespace BookMyShowClone.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Artist")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Duration")
@@ -64,11 +67,17 @@ namespace BookMyShowClone.Migrations
                     b.Property<int>("RatingCount")
                         .HasColumnType("int");
 
+                    b.Property<int>("ReservedSeats")
+                        .HasColumnType("int");
+
                     b.Property<double>("TicketPrice")
                         .HasColumnType("float");
 
                     b.Property<string>("TrailorUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UnReservedSeats")
+                        .HasColumnType("int");
 
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
